@@ -1,0 +1,259 @@
+	integer*4 p, lp, nw, ns, nw3, ns29
+	integer*4 ibdx2, ibdy2, ibdz2, ibd2all
+	integer*4 amx4, amxwtr, amxsrf
+	integer*4 ictmaxSnnn, ictmaxW2nn, ictmaxSnn
+	integer*4 ictmaxW2n, ictmaxSn, ictmaxS, ictmaxW2
+	integer*4 kewRws, knsRws, kudRws
+	integer*4 kewOnm4, knsOnm4, kudOnm4
+	integer*4 kewOnm3, knsOnm3, kudOnm3
+	integer*4 ksplit, ksplit3, ksplit9
+	integer*4 kdeletes, kdeletes64, kdeletes2, kdeletes6, kdeletes29
+	integer*4 kdeletes292, kdeletes296
+	integer*4 kdeletes12, kdeletes32, kdeletes92
+	integer*4 kdeletes16, kdeletes36, kdeletes96
+
+	integer*4 kdeletew1, kdeletew164, kdeletew13, kdeletew16
+	integer*4 kdeletew132
+	integer*4 kdeletew113, kdeletew133, kdeletew193
+	integer*4 kdeletew116, kdeletew136, kdeletew196
+
+	integer*4 kdeletew2, kdeletew264, kdeletew23, kdeletew26
+        integer*4 kdeletew232
+	integer*4 kdeletew213, kdeletew233, kdeletew293
+	integer*4 kdeletew216, kdeletew236, kdeletew296
+
+	integer*4 kgraphite
+
+	integer*4 iwater, isurfactant
+
+	real*8 sigma, epsilon
+	real*8 rc, delta, rs
+	real*8 xpi
+	real*8 dt, dtsq, dtsq2
+
+! double precision parameters
+
+	parameter (sigma = 3.166D0)
+	parameter (epsilon = 650.2D0)
+	parameter (rc = 10.0D0 / sigma)
+	parameter (delta = 2.0D0 / sigma)
+	parameter (rs = rc + delta)
+	parameter (xpi = 675.05)
+
+	parameter (dt = 0.00127362D0)
+	parameter (dtsq = dt * dt)
+	parameter (dtsq2 = dtsq / 2.0D0)
+
+! integer parameters
+	
+	parameter (p = 4)
+	parameter (lp = p * p + 2 * p + 1)
+	parameter (nw = 100)
+	parameter (nw3 = 3 * nw)
+	parameter (ns = 20)
+	parameter (ns29 = 29 * ns)
+	parameter (ibdx2 = 3)
+	parameter (ibdy2 = 3)
+	parameter (ibdz2 = 3)
+	parameter (ibd2all = ibdx2 * ibdy2 * ibdz2)
+	parameter (iwater = 9997)
+	parameter (isurfactant = 475)
+	parameter (amx4 = 2 * 57 * 3 * 64)
+	parameter (amxwtr = 3 * iwater)
+	parameter (amxsrf = 29 * isurfactant)
+	parameter (kewRws = 3 * 6500)
+	parameter (knsRws = 2 * 120 * 3 * 0.033 * rs**3 * sigma**3)
+	parameter (kudRws = 2 * 300 * 3 * 0.033 * rs**3 * sigma**3)
+	parameter (ictmaxSnnn = 1000)
+	parameter (ictmaxW2nn = 1000)
+	parameter (ictmaxSnn = 1000)
+	parameter (ictmaxW2n = 4000)
+	parameter (ictmaxSn = 1000)
+	parameter (ictmaxS = 1000)
+	parameter (ictmaxW2 = 1000)
+	parameter (kewOnm4 = 32 * lp)
+	parameter (knsOnm4 = 64 * lp)
+	parameter (kudOnm4 = 128 * lp)
+	parameter (kewOnm3 = 8 * lp)
+	parameter (knsOnm3 = 24 * lp)
+	parameter (kudOnm3 = 72 * lp)
+	parameter (ksplit = 3000)
+	parameter (ksplit3 = 3 * ksplit)
+	parameter (ksplit9 = 9 * ksplit)
+
+	parameter (kdeletes = 40)
+	parameter (kdeletes64 = 64 * kdeletes)
+	parameter (kdeletes2 = 2 * kdeletes64)
+	parameter (kdeletes6 = 6 * kdeletes64)
+	parameter (kdeletes12 = 1 * kdeletes2)
+	parameter (kdeletes32 = 3 * kdeletes2)
+	parameter (kdeletes92 = 9 * kdeletes2)
+	parameter (kdeletes16 = 1 * 29 * kdeletes6)
+	parameter (kdeletes36 = 3 * 29 * kdeletes6)
+	parameter (kdeletes96 = 9 * 29 * kdeletes6)
+	parameter (kdeletes292 = 29 * kdeletes2)
+	parameter (kdeletes296 = 29 * kdeletes6)
+
+	parameter (kdeletew1 = 500)
+	parameter (kdeletew164 = 64 * kdeletew1)
+	parameter (kdeletew13 = 3 * kdeletew164)
+	parameter (kdeletew16 = 6 * kdeletew164)
+	parameter (kdeletew113 = 1 * kdeletew13)
+	parameter (kdeletew133 = 3 * kdeletew13)
+	parameter (kdeletew193 = 9 * kdeletew13)
+	parameter (kdeletew116 = 1 * 3 * kdeletew16)
+	parameter (kdeletew136 = 3 * 3 * kdeletew16)
+	parameter (kdeletew196 = 9 * 3 * kdeletew16)
+	parameter (kdeletew132 = 3 * kdeletew13)
+
+	parameter (kdeletew2 = 500)
+        parameter (kdeletew264 = 64 * kdeletew2)
+        parameter (kdeletew23 = 3 * kdeletew264)
+        parameter (kdeletew26 = 6 * kdeletew264)
+	parameter (kdeletew213 = 1 * kdeletew23)
+        parameter (kdeletew233 = 3 * kdeletew23)
+        parameter (kdeletew293 = 9 * kdeletew23)
+        parameter (kdeletew216 = 1 * 3 * kdeletew26)
+        parameter (kdeletew236 = 3 * 3 * kdeletew26)
+        parameter (kdeletew296 = 9 * 3 * kdeletew26)
+        parameter (kdeletew232 = 3 * kdeletew23)
+	
+	parameter (kgraphite = 1000)
+
+	integer*4 ibdx3,ibdy3,ibdz3
+	integer*4 ibdx4,ibdy4,ibdz4
+	real*8 rsdx,rsdy,rsdz
+	real*8 rhsx,rhsy,rhsz
+	
+	integer*4 ictw1(216), ictw2(512), icts(1000)
+
+	real*8 rxw1(nw3, 216), ryw1(nw3, 216), rzw1(nw3, 216)
+	real*8 fxw1(nw3, 216), fyw1(nw3, 216), fzw1(nw3, 216)
+	real*8 rxw2(nw3, 512), ryw2(nw3, 512), rzw2(nw3, 512)
+	real*8 fxw2(nw3, 512), fyw2(nw3, 512), fzw2(nw3, 512)
+	real*8 rxs(ns29, 1000), rys(ns29, 1000), rzs(ns29, 1000)
+	real*8 fxs(ns29, 1000), fys(ns29, 1000), fzs(ns29, 1000)
+	real*8 vxw1(nw3, 64), vyw1(nw3, 64), vzw1(nw3, 64)
+	real*8 vxw2(nw3, 64), vyw2(nw3, 64), vzw2(nw3, 64)
+	real*8 vxs(ns29, 64), vys(ns29, 64), vzs(ns29, 64)
+	real*8 axw1(nw3, 64), ayw1(nw3, 64), azw1(nw3, 64)
+	real*8 axw2(nw3, 64), ayw2(nw3, 64), azw2(nw3, 64)
+	real*8 axs(ns29, 64), ays(ns29, 64), azs(ns29, 64)
+
+	real*8 rcen2x(ibd2all), rcen2y(ibd2all), rcen2z(ibd2all)
+	real*8 rcen2xtmp, rcen2ytmp, rcen2ztmp
+	real*8 rcen4x(64), rcen4y(64), rcen4z(64)
+	real*8 rcen3x(8), rcen3y(8), rcen3z(8)
+	real*8 rcen3xLjk3(216), rcen3yLjk3(216), rcen3zLjk3(216)
+	real*8 rcen4xLjk4(512), rcen4yLjk4(512), rcen4zLjk4(512)
+	real*8 rcen512x(512), rcen512y(512), rcen512z(512)
+	real*8 rcen1000x(1000), rcen1000y(1000), rcen1000z(1000)
+
+	integer*4 Snnn(ictmaxSnnn, 4, 64), ictSnnn(64)
+	integer*4 W2nn(ictmaxW2nn, 4, 64), ictW2nn(64)
+
+	integer*4 SnnCentral(ictmaxSnn, 4, 64), ictSnnCentral(64)
+	integer*4 SnCentral(ictmaxSn, 4, 64), ictSnCentral(64)
+	integer*4 SCentral(ictmaxS, 4, 64), ictSCentral(64)
+
+	integer*4 Snn26(ictmaxSnn, 4, 64), ictSnn26(64)
+	integer*4 Sn26(ictmaxSn, 4, 64), ictSn26(64)
+	integer*4 S26(ictmaxS, 4, 64), ictS26(64)
+
+	integer*4 W2nCentral(ictmaxW2n, 4, 64), ictW2nCentral(64)
+	integer*4 W2Central(ictmaxW2, 4, 64), ictW2Central(64)
+
+	integer*4 W2n26(ictmaxW2n, 4, 64), ictW2n26(64)
+	integer*4 W226(ictmaxW2, 4, 64), ictW226(64)
+
+	integer*4 jsplitw2, jsplits
+	integer*4 jsplitw2_total, jsplits_total
+	integer*4 iw2force(ksplit9), isforce(ksplit9)
+	real*8 rw2force(ksplit9), rsforce(ksplit9)
+
+	integer*4 jdeleteds, jdeleteds_total
+	integer*4 isewnsud(kdeletes292)
+	real*8 rsewnsud(kdeletes296)
+
+	integer*4 jdeletedw1, jdeletedw1_total
+	integer*4 iw1ewnsud(kdeletew132)
+	real*8 rw1ewnsud(kdeletew136)
+
+	integer*4 jdeletedw2, jdeletedw2_total
+        integer*4 iw2ewnsud(kdeletew232)
+        real*8 rw2ewnsud(kdeletew236)
+
+	integer*4 iself(42), jself(42), ibond(28), jbond(28)
+	integer*4 isub(28, 29, ns, 64)
+
+	complex*16 cO4(lp, 512), cO3(lp, 216), cO2(lp), cO2all(ibd2all * lp)
+	complex*16 cL4(lp, 64), cL3(lp, 8), cL2(lp)
+
+	real*8 emw(3), ems(29)
+	real*8 sgw(3), sgs(29)
+	real*8 epw(3), eps(29)
+	real*8 rqw(3), rqs(29)
+	real*8 dsqw(3), dsqs(28)
+	real*8 th(36), rkth(36), dva(30), dvb(30), dvc(30)
+	real*8 sgww6(3, 3), epww(3, 3), sgss6(29, 29), epss(29, 29), sgws6(3, 29), epws(3, 29)
+	real*8 sgcs6(29), epcs(29)
+
+	real*8 rifact(33)
+	real*8 tr, pnh1, pnh2, eta, sv1, sv2, w1v1, w1v2, w2v1, w2v2
+	
+	real*8 xgr(kgraphite, 16), ygr(kgraphite, 16), zgr(kgraphite, 16)
+	integer*4 ictgraphite(16)
+
+	common/cmn01/ibdx3,ibdy3,ibdz3
+	common/cmn02/ibdx4,ibdy4,ibdz4
+	common/cmn03/rsdx,rsdy,rsdz
+	common/cmn04/rhsx,rhsy,rhsz
+	common/cmn05/rxw1,ryw1,rzw1
+	common/cmn06/rxw2,ryw2,rzw2
+	common/cmn07/vxw1,vyw1,vzw1
+	common/cmn08/vxw2,vyw2,vzw2
+	common/cmn09/fxw1,fyw1,fzw1
+	common/cmn99/fxw2,fyw2,fzw2
+	common/cmn10/axw1,ayw1,azw1
+	common/cmn11/axw2,ayw2,azw2
+	common/cmn12/rxs,rys,rzs
+	common/cmn13/vxs,vys,vzs
+	common/cmn14/axs,ays,azs
+	common/cmn15/fxs,fys,fzs
+	common/cmn16/ictw1,ictw2,icts
+	common/cmn17/rcen2xtmp,rcen2ytmp,rcen2ztmp
+	common/cmn18/rcen2x,rcen2y,rcen2z
+	common/cmn20/rcen3x,rcen3y,rcen3z
+	common/cmn19/rcen4x,rcen4y,rcen4z
+	common/cmn21/Snnn,ictSnnn,W2nn,ictW2nn
+	common/cmn22/SnnCentral,ictSnnCentral,Snn26,ictSnn26
+	common/cmn23/W2nCentral,ictW2nCentral,W2n26,ictW2n26
+	common/cmn24/SnCentral,ictSnCentral,Sn26,ictSn26
+	common/cmn25/SCentral,ictSCentral,S26,ictS26
+	common/cmn26/W2Central,ictW2Central,W226,ictW226
+	common/cmn27/cO4,cO3,cO2,cO2all
+	common/cmn28/cL4,cL3,cL2
+	common/cmn29/emw,ems,sgw,sgs,epw,eps,rqw,rqs
+	common/cmn30/dsqw,dsqs,th,rkth,dva,dvb,dvc
+	common/cmn100/sgww6,epww,sgss6,epss,sgws6,epws,sgcs6,epcs
+	common/cmn31/rifact
+	common/cmn32/rcen3xLjk3,rcen3yLjk3,rcen3zLjk3
+	common/cmn33/rcen4xLjk4,rcen4yLjk4,rcen4zLjk4
+	common/cmn34/rcen512x,rcen512y,rcen512z
+	common/cmn35/rcen1000x,rcen1000y,rcen1000z
+	common/cmn36/jsplitw2,jsplits
+	common/cmn37/jsplitw2_total,jsplits_total
+	common/cmn38/iw2force,isforce,rw2force,rsforce
+	common/cmn39/jdeleteds
+	common/cmn40/jdeleteds_total
+	common/cmn41/isewnsud,rsewnsud
+	common/cmn42/jdeletedw1
+	common/cmn43/jdeletedw1_total
+	common/cmn44/iw1ewnsud,rw1ewnsud
+	common/cmn45/jdeletedw2
+        common/cmn46/jdeletedw2_total
+        common/cmn47/iw2ewnsud,rw2ewnsud
+	common/cmn48/iself,jself,ibond,jbond
+	common/cmn49/isub
+	common/cmn50/tr,pnh1,pnh2,eta,sv1,sv2,w1v1,w1v2,w2v1,w2v2
+	common/cmn51/xgr,ygr,zgr,ictgraphite
